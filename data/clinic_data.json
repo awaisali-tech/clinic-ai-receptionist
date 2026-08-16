@@ -1,0 +1,166 @@
+{
+  "clinics": [
+    {
+      "id": "clinic_001",
+      "name": "Sunrise Medical Center",
+      "location": {
+        "address": "123 Health Street, Downtown, Lahore, Pakistan",
+        "latitude": 31.5204,
+        "longitude": 74.3587
+      },
+      "contact": {
+        "phone": "+92-42-12345678",
+        "email": "info@sunrisemedical.com"
+      },
+      "services": [
+        "General Consultation",
+        "Pediatrics",
+        "Dermatology",
+        "Cardiology",
+        "Lab Tests"
+      ],
+      "doctors": [
+        {
+          "name": "Dr. Ayesha Khan",
+          "specialization": "Pediatrics",
+          "experience_years": 10,
+          "availability": "Mon-Fri 9:00am-2:00pm"
+        },
+        {
+          "name": "Dr. Ahmed Ali",
+          "specialization": "Dermatology",
+          "experience_years": 8,
+          "availability": "Tue-Sat 10:00am-4:00pm"
+        }
+      ],
+      "timings": {
+        "Mon-Fri": "9:00am - 6:00pm",
+        "Sat": "10:00am - 3:00pm",
+        "Sun": "Closed"
+      },
+      "faqs": [
+        {
+          "question": "Do you accept walk-in patients?",
+          "answer": "Yes, walk-in patients are welcome during working hours, but appointments are recommended."
+        },
+        {
+          "question": "Do you provide online consultation?",
+          "answer": "Yes, telemedicine consultations are available for select services via video call."
+        },
+        {
+          "question": "What payment methods do you accept?",
+          "answer": "We accept cash, credit/debit cards, and online bank transfers."
+        }
+      ],
+      "about": "Sunrise Medical Center has been serving the Lahore community for over 15 years. We provide quality healthcare services across general medicine, pediatrics, dermatology, and cardiology, equipped with state-of-the-art labs and patient care facilities."
+    },
+    {
+      "id": "clinic_002",
+      "name": "Green Leaf Dental & Oral Care",
+      "location": {
+        "address": "45 Smile Avenue, Gulberg, Lahore, Pakistan",
+        "latitude": 31.5205,
+        "longitude": 74.3580
+      },
+      "contact": {
+        "phone": "+92-42-87654321",
+        "email": "contact@greenleafdental.com"
+      },
+      "services": [
+        "Dental Checkups",
+        "Orthodontics",
+        "Teeth Whitening",
+        "Root Canal",
+        "Emergency Dental Care"
+      ],
+      "doctors": [
+        {
+          "name": "Dr. Sara Malik",
+          "specialization": "Orthodontics",
+          "experience_years": 7,
+          "availability": "Mon-Wed 11:00am-5:00pm"
+        },
+        {
+          "name": "Dr. Bilal Shah",
+          "specialization": "Endodontics",
+          "experience_years": 9,
+          "availability": "Thu-Sat 10:00am-4:00pm"
+        }
+      ],
+      "timings": {
+        "Mon-Fri": "10:00am - 6:00pm",
+        "Sat": "10:00am - 2:00pm",
+        "Sun": "Closed"
+      },
+      "faqs": [
+        {
+          "question": "Do you provide pediatric dental care?",
+          "answer": "Yes, we have specialized pediatric dentists for children."
+        },
+        {
+          "question": "Can I book an appointment online?",
+          "answer": "Yes, appointments can be booked through our website or WhatsApp."
+        },
+        {
+          "question": "Do you offer emergency services?",
+          "answer": "Yes, emergency dental services are available during working hours."
+        }
+      ],
+      "about": "Green Leaf Dental & Oral Care provides comprehensive dental services including orthodontics, endodontics, and cosmetic dentistry. Our clinic is equipped with modern dental technology and highly skilled professionals."
+    },
+    {
+      "id": "clinic_003",
+      "name": "Wellness Eye Clinic",
+      "location": {
+        "address": "78 Vision Road, Model Town, Lahore, Pakistan",
+        "latitude": 31.5210,
+        "longitude": 74.3575
+      },
+      "contact": {
+        "phone": "+92-42-11223344",
+        "email": "support@wellnesseyecare.com"
+      },
+      "services": [
+        "Eye Exams",
+        "Cataract Surgery",
+        "Glaucoma Treatment",
+        "Contact Lens Fitting",
+        "Laser Eye Surgery"
+      ],
+      "doctors": [
+        {
+          "name": "Dr. Fahad Iqbal",
+          "specialization": "Ophthalmology",
+          "experience_years": 12,
+          "availability": "Mon-Fri 9:00am-5:00pm"
+        },
+        {
+          "name": "Dr. Nadia Rehman",
+          "specialization": "Optometry",
+          "experience_years": 5,
+          "availability": "Tue-Sat 10:00am-4:00pm"
+        }
+      ],
+      "timings": {
+        "Mon-Fri": "9:00am - 6:00pm",
+        "Sat": "10:00am - 2:00pm",
+        "Sun": "Closed"
+      },
+      "faqs": [
+        {
+          "question": "Do you provide LASIK surgery?",
+          "answer": "Yes, we provide LASIK and other laser eye surgeries with prior consultation."
+        },
+        {
+          "question": "Are eye exams covered by insurance?",
+          "answer": "Most insurance plans cover eye exams. Please check with our staff for your plan details."
+        },
+        {
+          "question": "Do you sell prescription glasses?",
+          "answer": "Yes, we provide prescription glasses and sunglasses at our in-house optical shop."
+        }
+      ],
+      "about": "Wellness Eye Clinic offers full-spectrum eye care services including routine exams, surgery, and vision correction. Our mission is to maintain optimal eye health for all patients."
+    }
+  ]
+}
