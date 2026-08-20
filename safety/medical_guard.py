@@ -1,35 +1,20 @@
+from safety.models import SafetyDecision
+from safety.policy import MEDICAL_ADVICE_RESPONSE, SafetyPolicy
+
+
 class MedicalGuard:
     """
     Detects medical-advice requests that the AI receptionist
     should not answer as a medical professional.
     """
 
-    MEDICAL_PATTERNS = {
-        "diagnose",
-        "diagnosis",
-        "what disease",
-        "what illness",
-        "what condition",
-        "what medicine",
-        "which medicine",
-        "medication",
-        "prescribe",
-        "prescription",
-        "treatment",
-        "dosage",
-        "dose",
-        "should i take",
-        "should i use",
-        "symptoms",
-        "what should i take",
-    }
+    SAFE_RESPONSE = MEDICAL_ADVICE_RESPONSE
 
-    SAFE_RESPONSE = (
-        "I can help with clinic information, doctors, "
-        "services, and availability, but I cannot provide "
-        "medical diagnosis or treatment advice. "
-        "Please consult a qualified healthcare professional."
-    )
+    def __init__(self, policy: SafetyPolicy | None = None):
+        self.policy = policy or SafetyPolicy()
+
+    def evaluate(self, query: object) -> SafetyDecision:
+        return self.policy.evaluate_medical(query)
 
     def check(self, query: str) -> tuple[bool, str]:
         """
@@ -39,13 +24,4 @@ class MedicalGuard:
             (allowed, response)
         """
 
-        if not isinstance(query, str):
-            return False, self.SAFE_RESPONSE
-
-        normalized_query = query.lower().strip()
-
-        for pattern in self.MEDICAL_PATTERNS:
-            if pattern in normalized_query:
-                return False, self.SAFE_RESPONSE
-
-        return True, ""
+        return self.evaluate(query).legacy_tuple()

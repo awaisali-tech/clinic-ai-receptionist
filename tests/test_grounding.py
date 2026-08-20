@@ -12,6 +12,7 @@ from retrieval.vector_retriever import VectorRetriever
 from retrieval.structured_retriever import StructuredRetriever
 from retrieval.hybrid_retriever import HybridRetriever
 from retrieval.grounding_validator import GroundingValidator
+from conversation.intent_classifier import InformationNeed
 
 
 DATA_PATH = "data/clinic_data.json"
@@ -80,6 +81,7 @@ def main():
     results = retriever.retrieve(
         query=query,
         doctor_name="Dr. Ayesha Khan",
+        information_need=InformationNeed.DOCTOR_AVAILABILITY,
         top_k=3,
     )
 
@@ -87,6 +89,7 @@ def main():
         query=query,
         results=results,
         doctor_name="Dr. Ayesha Khan",
+        information_need=InformationNeed.DOCTOR_AVAILABILITY,
     )
 
     print("\nTest 1: Known doctor")
@@ -104,6 +107,7 @@ def main():
     results = retriever.retrieve(
         query=query,
         doctor_name="Dr. Unknown",
+        information_need=InformationNeed.DOCTOR_AVAILABILITY,
         top_k=3,
     )
 
@@ -111,6 +115,7 @@ def main():
         query=query,
         results=results,
         doctor_name="Dr. Unknown",
+        information_need=InformationNeed.DOCTOR_AVAILABILITY,
     )
 
     print("\nTest 2: Unknown doctor")

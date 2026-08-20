@@ -1,488 +1,382 @@
+import html
+import textwrap
+
 import streamlit as st
 
 
 # ============================================================
-# PAGE / GLOBAL STYLING
+# GLOBAL THEME
 # ============================================================
 
 def apply_clinic_theme():
-    """
-    Apply the visual theme for the clinic receptionist.
-    """
+    """Apply the visual theme."""
 
     st.markdown(
-        """
-        <style>
-
-        /* --------------------------------------------------
-           GLOBAL
-        -------------------------------------------------- */
-
-        .stApp {
-            background: #f5f8fa;
-        }
-
-        .main .block-container {
-            max-width: 1000px;
-            padding-top: 1.5rem;
-            padding-bottom: 2rem;
-        }
-
-        /* Hide Streamlit default UI elements */
-        #MainMenu {
-            visibility: hidden;
-        }
-
-        footer {
-            visibility: hidden;
-        }
-
-        header {
-            visibility: hidden;
-        }
-
-
-        /* --------------------------------------------------
-           CLINIC HEADER
-        -------------------------------------------------- */
-
-        .clinic-header {
-            background: white;
-            border: 1px solid #e5eaee;
-            border-radius: 18px;
-            padding: 18px 22px;
-            margin-bottom: 18px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .clinic-brand {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .clinic-logo {
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
-            background: #e8f5f3;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            font-size: 25px;
-        }
-
-        .clinic-name {
-            font-size: 20px;
-            font-weight: 700;
-            color: #173b4d;
-            margin: 0;
-        }
-
-        .clinic-subtitle {
-            font-size: 13px;
-            color: #71808a;
-            margin-top: 3px;
-        }
-
-        .online-status {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-
-            font-size: 13px;
-            color: #587078;
-        }
-
-        .online-dot {
-            width: 9px;
-            height: 9px;
-            border-radius: 50%;
-            background: #28a879;
-        }
-
-
-        /* --------------------------------------------------
-           WELCOME CARD
-           -------------------------------------------------- */
-
-        .welcome-card {
-            background: white;
-            border: 1px solid #e5eaee;
-            border-radius: 18px;
-
-            padding: 24px;
-            margin-bottom: 20px;
-
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.035);
-        }
-
-        .welcome-title {
-            color: #173b4d;
-            font-size: 21px;
-            font-weight: 700;
-            margin-bottom: 7px;
-        }
-
-        .welcome-text {
-            color: #667780;
-            font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 18px;
-        }
-
-        .service-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 9px;
-        }
-
-        .service-pill {
-            background: #f0f7f6;
-            color: #356b6a;
-
-            border-radius: 999px;
-            padding: 8px 13px;
-
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-
-        /* --------------------------------------------------
-           CHAT AREA
-           -------------------------------------------------- */
-
-        .chat-container {
-            margin-top: 10px;
-        }
-
-        .user-message {
-            display: flex;
-            justify-content: flex-end;
-
-            margin: 14px 0;
-        }
-
-        .user-bubble {
-            max-width: 72%;
-
-            background: #2d7f7a;
-            color: white;
-
-            padding: 12px 16px;
-            border-radius: 17px 17px 4px 17px;
-
-            font-size: 14px;
-            line-height: 1.5;
-
-            box-shadow: 0 2px 7px rgba(45, 127, 122, 0.14);
-        }
-
-        .assistant-message {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-
-            margin: 16px 0;
-        }
-
-        .assistant-avatar {
-            width: 34px;
-            height: 34px;
-
-            flex-shrink: 0;
-
-            border-radius: 11px;
-            background: #e5f3f1;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            font-size: 17px;
-        }
-
-        .assistant-bubble {
-            max-width: 78%;
-
-            background: white;
-            color: #344952;
-
-            border: 1px solid #e3eaed;
-
-            padding: 13px 16px;
-
-            border-radius: 4px 17px 17px 17px;
-
-            font-size: 14px;
-            line-height: 1.6;
-
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.025);
-        }
-
-
-        /* --------------------------------------------------
-           DOCTOR INFORMATION CARD
-           -------------------------------------------------- */
-
-        .doctor-card {
-            background: #ffffff;
-
-            border: 1px solid #dfe9e9;
-            border-radius: 15px;
-
-            padding: 16px;
-            margin-top: 10px;
-
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.025);
-        }
-
-        .doctor-name {
-            color: #173b4d;
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .doctor-specialization {
-            color: #71808a;
-            font-size: 13px;
-            margin-top: 3px;
-        }
-
-        .doctor-details {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-
-            margin-top: 14px;
-        }
-
-        .doctor-detail {
-            background: #f6f9fa;
-
-            border-radius: 10px;
-
-            padding: 9px 11px;
-
-            font-size: 12px;
-            color: #52656d;
-        }
-
-
-        /* --------------------------------------------------
-           QUICK QUESTIONS
-           -------------------------------------------------- */
-
-        .quick-title {
-            color: #65757d;
-            font-size: 12px;
-            font-weight: 600;
-
-            margin-top: 20px;
-            margin-bottom: 8px;
-        }
-
-
-        /* --------------------------------------------------
-           FOOTER
-           -------------------------------------------------- */
-
-        .clinic-footer {
-            text-align: center;
-
-            color: #8a999f;
-            font-size: 11px;
-
-            margin-top: 22px;
-            padding-top: 10px;
-        }
-
-
-        /* --------------------------------------------------
-           STREAMLIT INPUT
-           -------------------------------------------------- */
-
-        div[data-testid="stChatInput"] {
-            padding-bottom: 10px;
-        }
-
-        div[data-testid="stChatInput"] textarea {
-            border-radius: 16px !important;
-            border: 1px solid #dbe4e7 !important;
-
-            background: white !important;
-
-            padding: 12px 15px !important;
-
-            font-size: 14px !important;
-        }
-
-        div[data-testid="stChatInput"] textarea:focus {
-            border-color: #2d7f7a !important;
-            box-shadow: 0 0 0 1px #2d7f7a !important;
-        }
-
-
-        /* --------------------------------------------------
-           BUTTONS
-           -------------------------------------------------- */
-
-        .stButton > button {
-            border-radius: 10px;
-            border: 1px solid #dce5e7;
-
-            background: white;
-            color: #42616b;
-
-            font-size: 13px;
-        }
-
-        .stButton > button:hover {
-            border-color: #2d7f7a;
-            color: #2d7f7a;
-        }
-
-
-        /* --------------------------------------------------
-           MOBILE
-           -------------------------------------------------- */
-
-        @media (max-width: 700px) {
+        textwrap.dedent(
+            """
+            <style>
+
+            .stApp {
+                background-color: #f5f8fa;
+            }
 
             .main .block-container {
-                padding-left: 12px;
-                padding-right: 12px;
+                max-width: 900px;
+                padding-top: 1.5rem;
+                padding-bottom: 7rem;
             }
+
+            #MainMenu {
+                visibility: hidden;
+            }
+
+            footer {
+                visibility: hidden;
+            }
+
+            header {
+                background: transparent !important;
+            }
+
+            /* =========================
+               CLINIC HEADER
+               ========================= */
 
             .clinic-header {
-                padding: 15px;
+                background: #ffffff;
+                border: 1px solid #e3eaee;
+                border-radius: 18px;
+                padding: 20px 24px;
+                margin-bottom: 28px;
+
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+
+                box-shadow: 0 3px 14px rgba(30, 70, 90, 0.06);
             }
 
-            .clinic-name {
-                font-size: 17px;
+            .clinic-brand {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+            }
+
+            .clinic-icon {
+                width: 52px;
+                height: 52px;
+                border-radius: 14px;
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                background: #e9f7f5;
+                font-size: 27px;
+            }
+
+            .clinic-title {
+                color: #183b4d;
+                font-size: 21px;
+                font-weight: 700;
+                line-height: 1.2;
+            }
+
+            .clinic-subtitle {
+                color: #718894;
+                font-size: 13px;
+                margin-top: 5px;
             }
 
             .online-status {
-                display: none;
+                display: flex;
+                align-items: center;
+                gap: 7px;
+
+                color: #55717d;
+                font-size: 13px;
             }
+
+            .online-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: #20a875;
+            }
+
+            /* =========================
+               BUTTONS
+               ========================= */
+
+            div.stButton > button {
+                border: 1px solid #dce6ea;
+                border-radius: 10px;
+                background: #ffffff;
+                color: #315765;
+                font-size: 13px;
+                min-height: 38px;
+            }
+
+            div.stButton > button:hover {
+                border-color: #b8d4d5;
+                color: #1d6d72;
+            }
+
+            /* =========================
+               WELCOME
+               ========================= */
 
             .welcome-card {
+                background: #ffffff;
+                border: 1px solid #e3eaee;
+                border-radius: 18px;
+
+                padding: 28px 24px;
+                margin-bottom: 26px;
+
+                box-shadow: 0 3px 14px rgba(30, 70, 90, 0.05);
+            }
+
+            .welcome-title {
+                color: #183b4d;
+                font-size: 22px;
+                font-weight: 700;
+                margin-bottom: 10px;
+            }
+
+            .welcome-text {
+                color: #607985;
+                font-size: 14px;
+                line-height: 1.7;
+                margin-bottom: 20px;
+            }
+
+            .service-list {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .service-pill {
+                display: inline-block;
+                background: #eef8f7;
+                color: #35666b;
+
+                border-radius: 20px;
+                padding: 8px 12px;
+
+                font-size: 12px;
+                font-weight: 500;
+            }
+
+            /* =========================
+               USER MESSAGE
+               ========================= */
+
+            .user-message-row {
+                display: flex;
+                justify-content: flex-end;
+                margin: 14px 0;
+            }
+
+            .user-message {
+                max-width: 75%;
+
+                background: #e4f3f2;
+                color: #244f55;
+
+                border-radius: 16px 16px 4px 16px;
+
+                padding: 12px 16px;
+
+                font-size: 14px;
+                line-height: 1.6;
+            }
+
+            /* =========================
+               ASSISTANT MESSAGE
+               ========================= */
+
+            .assistant-message-row {
+                display: flex;
+                justify-content: flex-start;
+                margin: 14px 0;
+            }
+
+            .assistant-message {
+                max-width: 82%;
+
+                background: #ffffff;
+                color: #455f69;
+
+                border: 1px solid #e2eaed;
+
+                border-radius: 16px 16px 16px 4px;
+
+                padding: 14px 17px;
+
+                font-size: 14px;
+                line-height: 1.7;
+
+                box-shadow: 0 2px 8px rgba(30, 70, 90, 0.04);
+            }
+
+            /* =========================
+               DOCTOR CARD
+               ========================= */
+
+            .doctor-card {
+                background: #ffffff;
+
+                border: 1px solid #dce9eb;
+                border-radius: 16px;
+
                 padding: 18px;
+                margin: 12px 0 18px 0;
+
+                box-shadow: 0 3px 12px rgba(30, 70, 90, 0.05);
             }
 
-            .user-bubble,
-            .assistant-bubble {
-                max-width: 88%;
+            .doctor-name {
+                color: #183b4d;
+                font-size: 17px;
+                font-weight: 700;
+                margin-bottom: 5px;
             }
 
-        }
+            .doctor-specialization {
+                color: #34777a;
+                font-size: 13px;
+                font-weight: 600;
+                margin-bottom: 13px;
+            }
 
-        </style>
-        """,
+            .doctor-info {
+                color: #617983;
+                font-size: 13px;
+                line-height: 1.7;
+            }
+
+            .doctor-label {
+                color: #385965;
+                font-weight: 600;
+            }
+
+            /* =========================
+               FOOTER
+               ========================= */
+
+            .clinic-footer {
+                text-align: center;
+
+                color: #8ba0a9;
+
+                font-size: 11px;
+                line-height: 1.7;
+
+                padding: 24px 10px 100px;
+            }
+
+            </style>
+            """
+        ),
         unsafe_allow_html=True,
     )
 
 
 # ============================================================
-# CLINIC HEADER
+# HEADER
 # ============================================================
 
-def render_clinic_header(
-    clinic_name: str = "Sunrise Medical Center",
-):
-    """
-    Render the main clinic header.
-    """
+def render_clinic_header():
+    """Render generic multi-clinic header."""
 
     st.markdown(
-        f"""
-        <div class="clinic-header">
+        textwrap.dedent(
+            """
+            <div class="clinic-header">
 
-            <div class="clinic-brand">
+                <div class="clinic-brand">
 
-                <div class="clinic-logo">
-                    🏥
+                    <div class="clinic-icon">
+                        🏥
+                    </div>
+
+                    <div>
+
+                        <div class="clinic-title">
+                            ClinicCare Assistant
+                        </div>
+
+                        <div class="clinic-subtitle">
+                            Multi-clinic information assistant
+                        </div>
+
+                    </div>
+
                 </div>
 
-                <div>
-                    <div class="clinic-name">
-                        {clinic_name}
-                    </div>
-
-                    <div class="clinic-subtitle">
-                        AI Clinic Receptionist
-                    </div>
+                <div class="online-status">
+                    <span class="online-dot"></span>
+                    Online
                 </div>
 
             </div>
-
-            <div class="online-status">
-                <span class="online-dot"></span>
-                Online
-            </div>
-
-        </div>
-        """,
+            """
+        ),
         unsafe_allow_html=True,
     )
 
 
 # ============================================================
-# WELCOME CARD
+# WELCOME
 # ============================================================
 
 def render_welcome():
-    """
-    Render the initial receptionist welcome card.
-    """
+    """Render welcome section."""
 
     st.markdown(
-        """
-        <div class="welcome-card">
+        textwrap.dedent(
+            """
+            <div class="welcome-card">
 
-            <div class="welcome-title">
-                How can we help you today?
+                <div class="welcome-title">
+                    How can we help you today?
+                </div>
+
+                <div class="welcome-text">
+                    I'm your AI clinic receptionist. I can help you
+                    find doctors, check availability, explore clinic
+                    services, and find clinic locations.
+                </div>
+
+                <div class="service-list">
+
+                    <span class="service-pill">
+                        🧑‍⚕️ Doctors
+                    </span>
+
+                    <span class="service-pill">
+                        📅 Availability
+                    </span>
+
+                    <span class="service-pill">
+                        🏥 Clinic services
+                    </span>
+
+                    <span class="service-pill">
+                        📍 Locations
+                    </span>
+
+                    <span class="service-pill">
+                        ☎️ Contact
+                    </span>
+
+                </div>
+
             </div>
-
-            <div class="welcome-text">
-                I'm your AI clinic receptionist. I can help
-                you find doctors, check availability, and
-                provide general clinic information.
-            </div>
-
-            <div class="service-list">
-
-                <span class="service-pill">
-                    👨‍⚕️ Doctors
-                </span>
-
-                <span class="service-pill">
-                    📅 Availability
-                </span>
-
-                <span class="service-pill">
-                    🏥 Clinic services
-                </span>
-
-                <span class="service-pill">
-                    📍 Location
-                </span>
-
-                <span class="service-pill">
-                    ☎️ Contact
-                </span>
-
-            </div>
-
-        </div>
-        """,
+            """
+        ),
         unsafe_allow_html=True,
     )
 
@@ -491,19 +385,23 @@ def render_welcome():
 # USER MESSAGE
 # ============================================================
 
-def render_user_message(message: str):
-    """
-    Render a user chat bubble.
-    """
+def render_user_message(content):
+    """Render user message."""
+
+    safe_content = html.escape(str(content))
 
     st.markdown(
-        f"""
-        <div class="user-message">
-            <div class="user-bubble">
-                {message}
+        textwrap.dedent(
+            f"""
+            <div class="user-message-row">
+
+                <div class="user-message">
+                    {safe_content}
+                </div>
+
             </div>
-        </div>
-        """,
+            """
+        ),
         unsafe_allow_html=True,
     )
 
@@ -512,25 +410,24 @@ def render_user_message(message: str):
 # ASSISTANT MESSAGE
 # ============================================================
 
-def render_assistant_message(message: str):
-    """
-    Render an AI receptionist chat bubble.
-    """
+def render_assistant_message(content):
+    """Render assistant message."""
+
+    safe_content = html.escape(str(content))
+    safe_content = safe_content.replace("\n", "<br>")
 
     st.markdown(
-        f"""
-        <div class="assistant-message">
+        textwrap.dedent(
+            f"""
+            <div class="assistant-message-row">
 
-            <div class="assistant-avatar">
-                🏥
+                <div class="assistant-message">
+                    {safe_content}
+                </div>
+
             </div>
-
-            <div class="assistant-bubble">
-                {message}
-            </div>
-
-        </div>
-        """,
+            """
+        ),
         unsafe_allow_html=True,
     )
 
@@ -540,72 +437,64 @@ def render_assistant_message(message: str):
 # ============================================================
 
 def render_doctor_card(
-    doctor: str,
-    specialization: str | None = None,
-    clinic: str | None = None,
-    availability: str | None = None,
+    doctor=None,
+    specialization=None,
+    clinic=None,
+    availability=None,
 ):
-    """
-    Render structured doctor information.
-    """
+    """Render doctor information."""
 
-    specialization_html = ""
+    if not doctor:
+        return
 
-    if specialization:
-        specialization_html = (
-            f'<div class="doctor-specialization">'
-            f'{specialization}'
-            f'</div>'
-        )
+    safe_doctor = html.escape(str(doctor))
 
-    details = []
+    safe_specialization = html.escape(
+        str(specialization or "Not specified")
+    )
 
-    if clinic:
-        details.append(f"🏥 {clinic}")
+    safe_clinic = html.escape(
+        str(clinic or "Not specified")
+    )
 
-    if availability:
-        details.append(f"🕐 {availability}")
-
-    details_html = "".join(
-        f'<div class="doctor-detail">{item}</div>'
-        for item in details
+    safe_availability = html.escape(
+        str(availability or "Not specified")
     )
 
     st.markdown(
-        f"""
-        <div class="doctor-card">
+        textwrap.dedent(
+            f"""
+            <div class="doctor-card">
 
-            <div class="doctor-name">
-                👨‍⚕️ {doctor}
+                <div class="doctor-name">
+                    🧑‍⚕️ {safe_doctor}
+                </div>
+
+                <div class="doctor-specialization">
+                    {safe_specialization}
+                </div>
+
+                <div class="doctor-info">
+
+                    <div>
+                        <span class="doctor-label">
+                            🏥 Clinic:
+                        </span>
+                        {safe_clinic}
+                    </div>
+
+                    <div>
+                        <span class="doctor-label">
+                            📅 Availability:
+                        </span>
+                        {safe_availability}
+                    </div>
+
+                </div>
+
             </div>
-
-            {specialization_html}
-
-            <div class="doctor-details">
-                {details_html}
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-# ============================================================
-# QUICK QUESTIONS
-# ============================================================
-
-def render_quick_questions():
-    """
-    Render common questions above the chat input.
-    """
-
-    st.markdown(
-        """
-        <div class="quick-title">
-            Popular questions
-        </div>
-        """,
+            """
+        ),
         unsafe_allow_html=True,
     )
 
@@ -615,18 +504,22 @@ def render_quick_questions():
 # ============================================================
 
 def render_footer():
-    """
-    Render a small professional footer.
-    """
+    """Render footer."""
 
     st.markdown(
-        """
-        <div class="clinic-footer">
-            AI Clinic Receptionist · Information assistant
-            <br>
-            For medical advice, please consult a qualified
-            healthcare professional.
-        </div>
-        """,
+        textwrap.dedent(
+            """
+            <div class="clinic-footer">
+
+                ClinicCare Assistant · Multi-clinic information assistant
+
+                <br>
+
+                For medical advice, please consult a qualified
+                healthcare professional.
+
+            </div>
+            """
+        ),
         unsafe_allow_html=True,
     )

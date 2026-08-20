@@ -69,6 +69,9 @@ class FAISSStore:
             List of (document, similarity_score).
         """
 
+        if top_k <= 0:
+            raise ValueError("top_k must be positive.")
+
         if self.index.ntotal == 0:
             return []
 
@@ -79,6 +82,18 @@ class FAISSStore:
 
         if query_embedding.ndim == 1:
             query_embedding = query_embedding.reshape(1, -1)
+
+        if query_embedding.ndim != 2 or query_embedding.shape[0] != 1:
+            raise ValueError("Query embedding must contain exactly one vector.")
+
+        if query_embedding.shape[1] != self.dimension:
+            raise ValueError(
+                f"Expected query dimension {self.dimension}, "
+                f"got {query_embedding.shape[1]}."
+            )
+
+        if not np.isfinite(query_embedding).all():
+            raise ValueError("Query embedding must contain only finite values.")
 
         scores, indices = self.index.search(
             query_embedding,

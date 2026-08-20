@@ -10,9 +10,9 @@ from retrieval.vector_retriever import VectorRetriever
 from retrieval.structured_retriever import StructuredRetriever
 from retrieval.hybrid_retriever import HybridRetriever
 
-from conversation.entity_resolver import ContextResolver
+from conversation.entity_resolver import EntityCatalog
 
-from orchestration.pipeline import RAGPipeline
+from orchestration.factory import SharedRAGResources, build_session_pipeline
 
 
 DATA_PATH = "data/clinic_data.json"
@@ -77,18 +77,16 @@ def build_pipeline():
     )
 
     # ==================================================
-    # 5. CONVERSATION CONTEXT
+    # 5. SESSION PIPELINE
     # ==================================================
 
-    context_resolver = ContextResolver()
-
-    # ==================================================
-    # 6. CREATE FINAL PIPELINE
-    # ==================================================
-
-    pipeline = RAGPipeline(
-        retriever=hybrid_retriever,
-        context_resolver=context_resolver,
+    pipeline = build_session_pipeline(
+        SharedRAGResources(
+            retriever=hybrid_retriever,
+            entity_catalog=EntityCatalog.from_clinic_data(
+                normalized_data
+            ),
+        )
     )
 
     return pipeline

@@ -1,4 +1,3 @@
-
 import streamlit as st
 
 from ingestion.loader import load_clinic_data
@@ -13,9 +12,13 @@ from retrieval.vector_retriever import VectorRetriever
 from retrieval.structured_retriever import StructuredRetriever
 from retrieval.hybrid_retriever import HybridRetriever
 
-from conversation.entity_resolver import ContextResolver
+from conversation.entity_resolver import EntityCatalog
 
-from orchestration.pipeline import RAGPipeline
+from orchestration.factory import (
+    SharedRAGResources,
+    build_session_pipeline,
+)
+from generation.provider_errors import ProviderError, ProviderFailureKind
 
 from ui.components import (
     apply_clinic_theme,
@@ -33,7 +36,7 @@ from ui.components import (
 # ============================================================
 
 st.set_page_config(
-    page_title="Sunrise Medical Center",
+    page_title="ClinicCare Assistant",
     page_icon="🏥",
     layout="centered",
     initial_sidebar_state="collapsed",
@@ -41,7 +44,7 @@ st.set_page_config(
 
 
 # ============================================================
-# APPLY UI THEME
+# APPLY THEME
 # ============================================================
 
 apply_clinic_theme()
@@ -53,22 +56,42 @@ apply_clinic_theme()
 
 DATA_PATH = "data/clinic_data.json"
 
-CLINIC_NAME = "Sunrise Medical Center"
+TEMPORARY_SERVICE_MESSAGE = (
+    "I'm unable to complete that request right now. "
+    "Please try again."
+)
+
+CONFIGURATION_SERVICE_MESSAGE = (
+    "I'm unable to complete that request because the response service "
+    "is not available. Please try again later."
+)
+
+
+def safe_application_failure_message(error):
+    """Map infrastructure failures without exposing exception details."""
+
+    if isinstance(error, ProviderError) and error.kind in {
+        ProviderFailureKind.CONFIGURATION,
+        ProviderFailureKind.AUTHENTICATION,
+        ProviderFailureKind.PERMISSION,
+    }:
+        return CONFIGURATION_SERVICE_MESSAGE
+    return TEMPORARY_SERVICE_MESSAGE
 
 
 # ============================================================
-# BUILD RAG PIPELINE
+# BUILD SHARED RESOURCES AND SESSION PIPELINE
 # ============================================================
 
 @st.cache_resource
-def build_pipeline():
+def build_shared_resources():
     """
-    Build and cache the complete RAG pipeline.
+    Build expensive resources that are safe to share across sessions.
+    """
 
-    The pipeline is built only once during the
-    Streamlit session instead of rebuilding it
-    after every user message.
-    """
+    # --------------------------------------------------------
+    # Load data
+    # --------------------------------------------------------
 
     data = load_clinic_data(DATA_PATH)
 
@@ -122,18 +145,28 @@ def build_pipeline():
     )
 
     # --------------------------------------------------------
-    # Conversation context
+    # Entity catalog
     # --------------------------------------------------------
 
-    context_resolver = ContextResolver()
+    entity_catalog = EntityCatalog.from_clinic_data(
+        normalized_data
+    )
 
     # --------------------------------------------------------
-    # Final pipeline
+    # Shared resources
     # --------------------------------------------------------
 
-    return RAGPipeline(
+    return SharedRAGResources(
         retriever=hybrid_retriever,
-        context_resolver=context_resolver,
+        entity_catalog=entity_catalog,
+    )
+
+
+def build_pipeline():
+    """Build a pipeline with conversation state owned by this session."""
+
+    return build_session_pipeline(
+        build_shared_resources()
     )
 
 
@@ -142,9 +175,6 @@ def build_pipeline():
 # ============================================================
 
 def initialize_session():
-    """
-    Initialize Streamlit session state.
-    """
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -158,10 +188,6 @@ def initialize_session():
 # ============================================================
 
 def reset_conversation():
-    """
-    Clear the visible chat and the pipeline's
-    conversation context.
-    """
 
     st.session_state.messages = []
 
@@ -170,18 +196,21 @@ def reset_conversation():
 
 
 # ============================================================
-# HEADER
+# INITIALIZE
 # ============================================================
 
 initialize_session()
 
-render_clinic_header(
-    clinic_name=CLINIC_NAME
-)
+
+# ============================================================
+# HEADER
+# ============================================================
+
+render_clinic_header()
 
 
 # ============================================================
-# NEW CONVERSATION BUTTON
+# NEW CONVERSATION
 # ============================================================
 
 button_col1, button_col2 = st.columns(
@@ -194,7 +223,9 @@ with button_col2:
         "↻ New",
         use_container_width=True,
     ):
+
         reset_conversation()
+
         st.rerun()
 
 
@@ -203,16 +234,18 @@ with button_col2:
 # ============================================================
 
 if not st.session_state.messages:
+
     render_welcome()
 
 
 # ============================================================
-# DISPLAY CHAT HISTORY
+# CHAT HISTORY
 # ============================================================
 
 for message in st.session_state.messages:
 
     role = message["role"]
+
     content = message["content"]
 
     if role == "user":
@@ -227,7 +260,6 @@ for message in st.session_state.messages:
             content
         )
 
-        # Optional doctor information
         doctor_data = message.get(
             "doctor_data"
         )
@@ -255,18 +287,18 @@ for message in st.session_state.messages:
 # ============================================================
 
 user_query = st.chat_input(
-    "Ask about doctors, availability, or clinic services..."
+    "Ask about doctors, availability, clinic services..."
 )
 
 
 # ============================================================
-# PROCESS USER QUESTION
+# PROCESS QUESTION
 # ============================================================
 
 if user_query:
 
     # --------------------------------------------------------
-    # Display user message immediately
+    # Save and display user message
     # --------------------------------------------------------
 
     st.session_state.messages.append(
@@ -281,54 +313,59 @@ if user_query:
     )
 
     # --------------------------------------------------------
-    # Build pipeline if necessary
+    # Build pipeline
     # --------------------------------------------------------
+
+    result = None
+    answer = None
 
     if st.session_state.pipeline is None:
 
-        with st.spinner(
-            "Connecting to the clinic..."
-        ):
-
-            st.session_state.pipeline = (
-                build_pipeline()
-            )
+        try:
+            with st.spinner(
+                "Connecting to the clinic..."
+            ):
+                pipeline_factory = st.session_state.get(
+                    "_pipeline_factory",
+                    build_pipeline,
+                )
+                st.session_state.pipeline = pipeline_factory()
+                if st.session_state.pipeline is None:
+                    raise RuntimeError("Pipeline factory returned no pipeline.")
+        except Exception as error:
+            answer = safe_application_failure_message(error)
 
     pipeline = st.session_state.pipeline
 
     # --------------------------------------------------------
-    # Run RAG pipeline
+    # Run pipeline with a final infrastructure boundary
     # --------------------------------------------------------
 
-    with st.spinner(
-        "Checking clinic information..."
-    ):
+    if pipeline is not None and answer is None:
+        try:
+            with st.spinner(
+                "Checking clinic information..."
+            ):
+                result = pipeline.run(
+                    query=user_query,
+                    top_k=5,
+                )
+            answer = result.answer
+        except Exception as error:
+            answer = safe_application_failure_message(error)
 
-        result = pipeline.run(
-            query=user_query,
-            top_k=3,
-        )
-
-    # --------------------------------------------------------
-    # Assistant response
-    # --------------------------------------------------------
-
-    answer = result.answer
-
-    render_assistant_message(
-        answer
-    )
+    render_assistant_message(answer)
 
     # --------------------------------------------------------
-    # Extract doctor information
+    # Doctor information
     # --------------------------------------------------------
 
     doctor_data = None
 
-    if result.results:
+    if result is not None and result.evidence:
 
         best_document = (
-            result.results[0].document
+            result.evidence[0].document
         )
 
         metadata = best_document.metadata
@@ -337,24 +374,17 @@ if user_query:
             "doctor_name"
         )
 
-        retrieved_specialization = (
-            metadata.get(
-                "specialization"
-            )
+        retrieved_specialization = metadata.get(
+            "specialization"
         )
 
         retrieved_clinic = metadata.get(
             "clinic_name"
         )
 
-        retrieved_availability = (
-            metadata.get(
-                "availability"
-            )
+        retrieved_availability = metadata.get(
+            "availability"
         )
-
-        # Only show the card when we actually
-        # have a doctor entity.
 
         if retrieved_doctor:
 

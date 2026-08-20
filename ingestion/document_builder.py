@@ -45,9 +45,19 @@ def build_documents(data: dict[str, Any]) -> list[RAGDocument]:
             RAGDocument(
                 text=clinic_text,
                 metadata={
+                    "document_id": f"{clinic_id}:clinic",
                     "clinic_id": clinic_id,
                     "clinic_name": clinic_name,
                     "document_type": "clinic",
+                    "information_types": (
+                        "clinic_information",
+                        "clinic_location",
+                        "clinic_contact",
+                    ),
+                    "address": location.get("address"),
+                    "phone": contact.get("phone"),
+                    "email": contact.get("email"),
+                    "about": clinic["about"],
                 },
             )
         )
@@ -56,7 +66,7 @@ def build_documents(data: dict[str, Any]) -> list[RAGDocument]:
         # 2. Doctors
         # --------------------------------------------------
 
-        for doctor in clinic["doctors"]:
+        for doctor_index, doctor in enumerate(clinic["doctors"]):
 
             doctor_name = doctor["name"]
             specialization = doctor["specialization"]
@@ -74,11 +84,22 @@ def build_documents(data: dict[str, Any]) -> list[RAGDocument]:
                 RAGDocument(
                     text=doctor_text,
                     metadata={
+                        "document_id": (
+                            f"{clinic_id}:doctor:{doctor_index}"
+                        ),
                         "clinic_id": clinic_id,
                         "clinic_name": clinic_name,
                         "document_type": "doctor",
+                        "information_types": (
+                            "doctor_information",
+                            "doctor_availability",
+                        ),
                         "doctor_name": doctor_name,
                         "specialization": specialization,
+                        "experience_years": doctor.get(
+                            "experience_years"
+                        ),
+                        "availability": doctor["availability"],
                     },
                 )
             )
@@ -87,7 +108,7 @@ def build_documents(data: dict[str, Any]) -> list[RAGDocument]:
         # 3. Services
         # --------------------------------------------------
 
-        for service in clinic["services"]:
+        for service_index, service in enumerate(clinic["services"]):
 
             service_text = (
                 f"Service: {service}\n"
@@ -98,9 +119,13 @@ def build_documents(data: dict[str, Any]) -> list[RAGDocument]:
                 RAGDocument(
                     text=service_text,
                     metadata={
+                        "document_id": (
+                            f"{clinic_id}:service:{service_index}"
+                        ),
                         "clinic_id": clinic_id,
                         "clinic_name": clinic_name,
                         "document_type": "service",
+                        "information_types": ("services",),
                         "service_name": service,
                     },
                 )
@@ -119,9 +144,12 @@ def build_documents(data: dict[str, Any]) -> list[RAGDocument]:
             RAGDocument(
                 text=timings_text,
                 metadata={
+                    "document_id": f"{clinic_id}:timings",
                     "clinic_id": clinic_id,
                     "clinic_name": clinic_name,
                     "document_type": "timings",
+                    "information_types": ("clinic_timings",),
+                    "timings": dict(clinic["timings"]),
                 },
             )
         )
@@ -130,7 +158,10 @@ def build_documents(data: dict[str, Any]) -> list[RAGDocument]:
         # 5. FAQs
         # --------------------------------------------------
 
-        for faq in clinic["faqs"]:
+        for faq_index, faq in enumerate(clinic["faqs"]):
+
+            question = ""
+            answer = ""
 
             if isinstance(faq, dict):
 
@@ -160,9 +191,13 @@ def build_documents(data: dict[str, Any]) -> list[RAGDocument]:
                 RAGDocument(
                     text=faq_text,
                     metadata={
+                        "document_id": f"{clinic_id}:faq:{faq_index}",
                         "clinic_id": clinic_id,
                         "clinic_name": clinic_name,
                         "document_type": "faq",
+                        "information_types": ("faq",),
+                        "faq_question": question,
+                        "faq_answer": answer or str(faq),
                     },
                 )
             )
